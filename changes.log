@@ -1,3 +1,8 @@
+* 3.2.3
+    - Renamed the active sequence button from Load to Manage
+    - Renamed the import action to Import URL for clearer sequence management UI
+    - Updated the import dialog prompt to explicitly request a Wowhead talent URL
+
 * 3.2.2
     - Moved saved talent sequences to an account-wide library
     - Added automatic migration from legacy per-character saved sequences
