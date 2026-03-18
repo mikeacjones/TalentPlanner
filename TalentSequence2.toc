@@ -9,6 +9,5 @@
 ## X-WoWI-ID: 26216
 
 Localization.lua
-IcyVeinsTalents.lua
 WowheadTalents.lua
 TalentSequence.lua

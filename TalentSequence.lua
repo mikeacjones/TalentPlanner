@@ -133,14 +133,9 @@ local function InsertSequence(talentSequence)
 end
 
 function ts:ImportTalents(talentsString)
-    local talents = {}
     local isWowhead = strfind(talentsString,"wowhead")
-    local talents = nil
-    if (isWowhead) then 
-        talents = ts.WowheadTalents.GetTalents(talentsString)
-    else
-        talents = ts.IcyVeinsTalents.GetTalents(talentsString)
-    end
+    if (not isWowhead) then return end
+    local talents = ts.WowheadTalents.GetTalents(talentsString)
     if (talents == nil) then return end
     InsertSequence(talents)
     if (self.ImportFrame and self.ImportFrame:IsShown()) then

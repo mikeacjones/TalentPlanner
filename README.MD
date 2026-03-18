@@ -10,7 +10,6 @@ The generic `TalentSequence2.toc` is intentionally unsupported and exists only t
 
 ## Supports
 
-- Icy Veins talent calculator URLs
 - Wowhead talent calculator URLs
 - Blizzard talent UI
 - Talented addon integration
@@ -44,7 +43,6 @@ Classic mappings can be added incrementally by supplying one calibration file pe
 Top-level files:
 - `TalentSequence.lua` main UI and sequence state
 - `WowheadTalents.lua` Wowhead URL import and per-class mapping overrides
-- `IcyVeinsTalents.lua` Icy Veins URL import
 - `Localization.lua` strings
 - `TalentSequence2_TBC.toc` TBC client entry point
 - `TalentSequence2_Vanilla.toc` Vanilla client entry point
