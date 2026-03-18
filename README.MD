@@ -1,71 +1,70 @@
 # Talent Sequence 2
 
-Table of contents:
-- [Talent Sequence 2](#talent-sequence-2)
-  - [What It Is](#what-it-is)
-  - [Supports](#supports)
-  - [Origins](#origins)
-    - [In-Game Previews](#in-game-previews)
-        - [*Blizzard Talent Frame*](#blizzard-talent-frame)
-      - [*Talented Addon Support*](#talented-addon-support)
-    - [How-To](#how-to)
-      - [*Add Icy Veins Talent Sequence*](#add-icy-veins-talent-sequence)
-      - [*Add WowHead Talent Sequence*](#add-wowhead-talent-sequence)
+Talent Sequence 2 is a Classic-era WoW AddOn that shows a talent-point spending order next to the in-game talent frame.
 
-## What It Is
+This source tree is the cleaned top-level addon layout used for both supported clients:
+- `TalentSequence2_Vanilla.toc` for Classic Era / Anniversary Vanilla
+- `TalentSequence2_TBC.toc` for Burning Crusade Classic
 
-Talent Sequence 2 is a WoW AddOn for TBC Classic that allows you to display a the talent sequence you've built in various web-based talent calculators side-by-side the in game talent window.
+The generic `TalentSequence2.toc` is intentionally unsupported and exists only to make the client choose the flavor-specific TOC.
 
 ## Supports
 
-* Icy Veins TBC Talent Calculator
-* WowHead TBC Talent Calculator
-* Hooks into Talented AddOn if you are using it
+- Icy Veins talent calculator URLs
+- Wowhead talent calculator URLs
+- Blizzard talent UI
+- Talented addon integration
 
-## Origins
+## Current Wowhead Support
 
-This AddOn is a fork of the original [Talent Sequence](https://www.curseforge.com/wow/addons/talent-sequence/
-) AddOn. With the death of bobos talents, the AddOn became essentially unusable. This fork breaths new life into the AddOn making the following changes:
+The Wowhead importer now supports a mapping-based decode path for flavors where the old fixed slot-index parser is unreliable.
 
+Current mapped support:
+- TBC Paladin
+- TBC Druid
 
-### In-Game Previews
+The parser is structured as:
+- `flavor -> class -> tree -> wowhead code -> talent name`
 
-##### *Blizzard Talent Frame*
+It then resolves the real in-game talent index dynamically with `GetTalentInfo`, which makes the importer much more robust across Classic/TBC tree differences.
 
-![Blizzard frame displaying Talent Sequence 2](https://i.imgur.com/ThW7UOQ.png)
+Additional classes can be added incrementally by supplying one calibration file per tree with:
+- the full Wowhead URL
+- the exact point-by-point order
 
-#### *Talented Addon Support*
+## Source Layout
 
-![Talented frame displaying Talent Sequence 2](https://i.imgur.com/ul4kLXV.png)
+Top-level files:
+- `TalentSequence.lua` main UI and sequence state
+- `WowheadTalents.lua` Wowhead URL import and per-class mapping overrides
+- `IcyVeinsTalents.lua` Icy Veins URL import
+- `Localization.lua` strings
+- `TalentSequence2_TBC.toc` TBC client entry point
+- `TalentSequence2_Vanilla.toc` Vanilla client entry point
 
-### How-To
+There is no nested addon subfolder in this repo anymore. Packaging is done directly from the root.
 
-#### *Add Icy Veins Talent Sequence*
+## Packaging
 
-* Build your talent sequence in the Icy Veins TBC calculator. Alternatively, use a prebuilt sequence.
-   * When using a linked or embedded sequence (eg: the Icy Veins leveling guides), verify that the sequence in the calculator actually includes the talent order. If the calculator was embedded, you should see buttons that allow you to step through the point distribution. This isn't necessary when building the spec yourself as the order is maintained by default. ![talent step buttons](https://i.imgur.com/MT02brt.png)
-* Copy the entire Icy Veins talent calcluator URL
-* In-game, open your Talent window, and click `Talent Sequence >>`
-* Click the `Load` button
-* Paste the Icy Veins talent calculator URL and load
-* Name the sequence and hit enter
-* Click the now available button in order to set your talent sequence
-* Go level and earn talent points!
+Run:
 
-![screenshot](https://i.imgur.com/dZAMbix.png)
-![screenshot](https://i.imgur.com/3BZAal9.png)
+```sh
+./package.sh
+```
 
-#### *Add WowHead Talent Sequence*
+This creates a zip under `.release/` containing a single top-level `TalentSequence2/` addon folder with the Lua files, TOCs, and metadata needed for distribution.
 
-* Build your talent sequence in the WowHead TBC calculator. Alternatively, use a prebuilt sequence.
-   * Ensure that you have the Talent Order enabled. In the calculator window, you must expand the Talent Order tab and keep it open, or WowHead will not maintain the talent sequence. The import will NOT work if this tab is not open and showing your talent sequence ![wowhead talent calculator screenshot](https://i.imgur.com/LPBe091.png)
-* Copy the entire WowHead talent calcluator URL
-* In-game, open your Talent window, and click `Talent Sequence >>`
-* Click the `Load` button
-* Paste the WowHead talent calculator URL and load
-* Name the sequence and hit enter
-* Click the now available button in order to set your talent sequence
-* Go level and earn talent points!
+## Installing Locally
 
-![screenshot](https://i.imgur.com/dZAMbix.png)
-![screenshot](https://i.imgur.com/3BZAal9.png)
+Copy the packaged `TalentSequence2/` folder into:
+
+```text
+World of Warcraft/_anniversary_/Interface/AddOns/
+```
+
+Then restart the client if you changed TOC metadata, or use `/reload` for Lua-only changes.
+
+## Notes
+
+- If a saved active sequence is deleted, the addon now clears the active sequence instead of recreating it as `<unnamed>` on reload.
+- The popup import dialog has been updated to work with the newer `StaticPopup` edit box field naming used by current Classic clients.

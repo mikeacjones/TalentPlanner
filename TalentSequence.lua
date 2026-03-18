@@ -42,7 +42,11 @@ StaticPopupDialogs[IMPORT_DIALOG] = {
     button2 = ts.L.CANCEL,
     OnShow = function(self) _G[self:GetName() .. "EditBox"]:SetText("") end,
     OnAccept = function(self)
-        local talentsString = self.editBox:GetText()
+        local editBox = self.editBox or self.EditBox or _G[self:GetName() .. "EditBox"]
+        if not editBox then
+            return
+        end
+        local talentsString = editBox:GetText()
         ts:ImportTalents(talentsString)
     end,
     EditBoxOnEnterPressed = function(self)
@@ -160,6 +164,21 @@ function ts:SetTalents(talents)
         ts.ScrollFirstUnlearnedTalentIntoView(self.MainFrame)
         ts.UpdateTalentFrame(self.MainFrame)
     end
+end
+
+local function SequencesEqual(left, right)
+    if (left == right) then return true end
+    if (type(left) ~= "table" or type(right) ~= "table") then return false end
+    if (#left ~= #right) then return false end
+    for index = 1, #left do
+        local l = left[index]
+        local r = right[index]
+        if (type(l) ~= "table" or type(r) ~= "table") then return false end
+        if (l.tab ~= r.tab or l.index ~= r.index or l.rank ~= r.rank or l.level ~= r.level) then
+            return false
+        end
+    end
+    return true
 end
 
 function ts:UpdateSequencesFrame()
@@ -329,6 +348,17 @@ function ts.CreateImportFrame(talentFrame)
             if (not IsShiftKeyDown()) then return end
             local offset = FauxScrollFrame_GetOffset(scrollBar)
             local index = offset + self:GetParent().index
+            local sequence = TalentSequenceSavedSequences[index]
+            local shouldClearActive = false
+            if (sequence and SequencesEqual(sequence.talents, ts.Talents)) then
+                shouldClearActive = true
+            end
+            if (#TalentSequenceSavedSequences == 1) then
+                shouldClearActive = true
+            end
+            if (shouldClearActive) then
+                ts:SetTalents({})
+            end
             tremove(TalentSequenceSavedSequences, index)
             ts:UpdateSequencesFrame()
         end)
@@ -632,11 +662,17 @@ local function hookTaleneted(Talented)
     end
 end
 
-local _,_,_,talented_loadable, talented_error = GetAddOnInfo("Talented")
+-- C_AddOns was introduced in Classic 1.15.x; fall back to the old globals for
+-- older clients so the same file works across patch versions.
+local _GetAddOnInfo        = (C_AddOns and C_AddOns.GetAddOnInfo)        or GetAddOnInfo
+local _GetAddOnEnableState = (C_AddOns and C_AddOns.GetAddOnEnableState) or GetAddOnEnableState
+local _IsAddOnLoaded       = (C_AddOns and C_AddOns.IsAddOnLoaded)       or IsAddOnLoaded
+
+local _,_,_,talented_loadable, talented_error = _GetAddOnInfo("Talented")
 if talented_loadable and not (talented_error == "MISSING" or talented_error == "DISABLED") then
     local Talented
-    if GetAddOnEnableState((GetUnitName("player")),"Talented") == 2 then
-        local loaded, finished = IsAddOnLoaded("Talented")
+    if _GetAddOnEnableState((GetUnitName("player")),"Talented") == 2 then
+        local loaded, finished = _IsAddOnLoaded("Talented")
         if loaded and finished then
             Talented = LibStub("AceAddon-3.0"):GetAddon("Talented",true)
             hookTaleneted(Talented)

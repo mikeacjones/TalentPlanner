@@ -1,8 +1,26 @@
 #!/bin/sh
-rm -rf .release/
-mkdir .release
-mkdir .release/TalentSequence2
-cp *.toc .release/TalentSequence2/
-cp *.lua .release/TalentSequence2/
-cd .release/ && zip -r TalentSequence2-$(sed '3!d' ../TalentSequence2.toc | awk '{print $3}')-$(git branch | sed -n -e 's/^\* \(.*\)/\1/p').zip . -x ".*" -x "__MACOSX"
-rm -rf TalentSequence2
+set -eu
+
+ROOT_DIR="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+RELEASE_DIR="$ROOT_DIR/.release"
+ADDON_DIR="$RELEASE_DIR/TalentSequence2"
+VERSION="$(awk '/^## Version:/ { print $3; exit }' "$ROOT_DIR/TalentSequence2_TBC.toc")"
+BRANCH="$(git -C "$ROOT_DIR" rev-parse --abbrev-ref HEAD)"
+SAFE_BRANCH="$(printf '%s' "$BRANCH" | tr '/' '-')"
+ZIP_NAME="TalentSequence2-${VERSION}-${SAFE_BRANCH}.zip"
+
+rm -rf "$RELEASE_DIR"
+mkdir -p "$ADDON_DIR"
+
+cp "$ROOT_DIR"/*.lua "$ADDON_DIR"/
+cp "$ROOT_DIR"/*.toc "$ADDON_DIR"/
+cp "$ROOT_DIR"/README.MD "$ADDON_DIR"/
+cp "$ROOT_DIR"/LICENSE "$ADDON_DIR"/
+cp "$ROOT_DIR"/changes.log "$ADDON_DIR"/
+
+(
+    cd "$RELEASE_DIR"
+    zip -r "$ZIP_NAME" TalentSequence2 -x ".*" -x "__MACOSX"
+)
+
+echo "Created $RELEASE_DIR/$ZIP_NAME"

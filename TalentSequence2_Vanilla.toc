@@ -1,8 +1,8 @@
-## Interface: 00000
+## Interface: 11508
 ## Title: Talent Sequence 2
 ## Version: 3.2.0
 ## Author: Moregelen, Sveng
-## Notes: Unsupported game client. Use the Vanilla or TBC Classic client-specific TOC.
+## Notes: Shows what order you should spend talent points in, based on Icy Veins or WowHead talent calculators. Compatible with WoW Classic Anniversary Edition.
 ## SavedVariablesPerCharacter: IsTalentSequenceExpanded, TalentSequenceTalents, TalentSequenceSavedSequences
 ## X-Testers: /u/thisisverytricky
 ## X-Curse-Project-ID: 570281
