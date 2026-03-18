@@ -20,7 +20,14 @@ The generic `TalentSequence2.toc` is intentionally unsupported and exists only t
 The Wowhead importer now supports a mapping-based decode path for flavors where the old fixed slot-index parser is unreliable.
 
 Current mapped support:
+- TBC Warrior
 - TBC Paladin
+- TBC Hunter
+- TBC Rogue
+- TBC Priest
+- TBC Shaman
+- TBC Mage
+- TBC Warlock
 - TBC Druid
 
 The parser is structured as:
@@ -28,7 +35,7 @@ The parser is structured as:
 
 It then resolves the real in-game talent index dynamically with `GetTalentInfo`, which makes the importer much more robust across Classic/TBC tree differences.
 
-Additional classes can be added incrementally by supplying one calibration file per tree with:
+Classic mappings can be added incrementally by supplying one calibration file per tree with:
 - the full Wowhead URL
 - the exact point-by-point order
 

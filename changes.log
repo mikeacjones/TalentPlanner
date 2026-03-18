@@ -4,7 +4,7 @@
     - Fixed StaticPopup import dialog compatibility on current Classic clients
     - Fixed deleting the active sequence so it no longer returns as <unnamed> on reload
     - Reworked Wowhead parsing to use explicit flavor/class/tree talent-name mappings
-    - Added mapped Wowhead support for TBC Paladin and Druid
+    - Added mapped Wowhead support for all TBC classes
     - Updated packaging and README for the cleaned source tree
 
 # 3.1.0
