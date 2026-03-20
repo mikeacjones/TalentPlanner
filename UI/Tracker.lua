@@ -173,6 +173,13 @@ function ts.CreateMainFrame()
             else
                 return
             end
+            if (self.talentName and self.talentRank and self.talentMaxRank) then
+                tooltip:AddLine(" ")
+                tooltip:AddLine(format(
+                    "Train |cff71d5ff[%s]|r to |cffffd100(%d/%d)|r",
+                    self.talentName, self.talentRank, self.talentMaxRank),
+                    1, 1, 1)
+            end
             tooltip:Show()
         end)
         icon:SetScript("OnLeave", function() tooltip:Hide() end)
@@ -203,6 +210,9 @@ function ts.CreateMainFrame()
                 self.talent = nil
                 self.icon.spellId = nil
                 self.icon.tooltip = nil
+                self.icon.talentName = nil
+                self.icon.talentRank = nil
+                self.icon.talentMaxRank = nil
                 return
             end
 
@@ -213,6 +223,9 @@ function ts.CreateMainFrame()
 
             SetItemButtonTexture(self.icon, icon)
             self.icon.spellId = talent.spellId
+            self.icon.talentName = name
+            self.icon.talentRank = talent.rank
+            self.icon.talentMaxRank = maxRank
             if (talent.spellId) then
                 self.icon.tooltip = nil
             else
