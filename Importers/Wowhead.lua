@@ -61,7 +61,7 @@ local function FindTalentIndexByName(tabIndex, talentName)
     return nil
 end
 
-local function GetFlavorTalentName(rawTalentString, currentTab, encodedId)
+local function GetFlavorTalentEntry(rawTalentString, currentTab, encodedId)
     local flavorKey = GetWowheadFlavor(rawTalentString)
     if not flavorKey then
         return nil
@@ -75,12 +75,12 @@ local function GetFlavorTalentName(rawTalentString, currentTab, encodedId)
 end
 
 local function GetFlavorMappedTalentIndex(rawTalentString, currentTab, encodedId)
-    local talentName = GetFlavorTalentName(rawTalentString, currentTab, encodedId)
-    if not talentName then
+    local entry = GetFlavorTalentEntry(rawTalentString, currentTab, encodedId)
+    if not entry then
         return nil
     end
 
-    return FindTalentIndexByName(currentTab + 1, talentName)
+    return FindTalentIndexByName(currentTab + 1, entry.name)
 end
 
 local function GetMappedTalentIndex(rawTalentString, currentTab, encodedId)

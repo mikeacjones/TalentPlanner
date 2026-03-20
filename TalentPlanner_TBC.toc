@@ -11,7 +11,7 @@
 
 Core/Database.lua
 Localization.lua
-Importers/WowheadData.lua
+Importers/WowheadData_TBC.lua
 Importers/Wowhead.lua
 UI/Dialogs.lua
 UI/Manager.lua
