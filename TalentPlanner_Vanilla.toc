@@ -10,6 +10,7 @@
 ## X-WoWI-ID: 26216
 
 Core/Database.lua
+Core/Migrations.lua
 Localization.lua
 Importers/WowheadData_Classic.lua
 Importers/Wowhead.lua
