@@ -165,9 +165,14 @@ function ts.CreateMainFrame()
             end
         end)
         icon:SetScript("OnEnter", function(self)
-            if (not self.tooltip) then return end
             tooltip:SetOwner(self, "ANCHOR_RIGHT")
-            tooltip:SetText(self.tooltip, nil, nil, nil, nil, true)
+            if (self.spellId) then
+                tooltip:SetSpellByID(self.spellId)
+            elseif (self.tooltip) then
+                tooltip:SetText(self.tooltip, nil, nil, nil, nil, true)
+            else
+                return
+            end
             tooltip:Show()
         end)
         icon:SetScript("OnLeave", function() tooltip:Hide() end)
@@ -196,6 +201,8 @@ function ts.CreateMainFrame()
             if (not talent) then
                 self:Hide()
                 self.talent = nil
+                self.icon.spellId = nil
+                self.icon.tooltip = nil
                 return
             end
 
@@ -205,9 +212,14 @@ function ts.CreateMainFrame()
                 GetTalentInfo(talent.tab, talent.index)
 
             SetItemButtonTexture(self.icon, icon)
-            local tabName = GetTalentTabInfo(talent.tab)
-            self.icon.tooltip = format("%s (%d/%d) - %s", name, talent.rank,
-                                       maxRank, tabName)
+            self.icon.spellId = talent.spellId
+            if (talent.spellId) then
+                self.icon.tooltip = nil
+            else
+                local tabName = GetTalentTabInfo(talent.tab)
+                self.icon.tooltip = format("%s (%d/%d) - %s", name, talent.rank,
+                                           maxRank, tabName)
+            end
             self.icon.rank:SetText(talent.rank)
 
             if (talent.rank < maxRank) then

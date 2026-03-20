@@ -74,22 +74,16 @@ local function GetFlavorTalentEntry(rawTalentString, currentTab, encodedId)
     return treeMap and treeMap[strlower(encodedId)] or nil
 end
 
-local function GetFlavorMappedTalentIndex(rawTalentString, currentTab, encodedId)
+local function GetMappedTalentResult(rawTalentString, currentTab, encodedId)
     local entry = GetFlavorTalentEntry(rawTalentString, currentTab, encodedId)
-    if not entry then
-        return nil
+    if entry then
+        local talentIndex = FindTalentIndexByName(currentTab + 1, entry.name)
+        if talentIndex then
+            return talentIndex, entry
+        end
     end
 
-    return FindTalentIndexByName(currentTab + 1, entry.name)
-end
-
-local function GetMappedTalentIndex(rawTalentString, currentTab, encodedId)
-    local mappedIndex = GetFlavorMappedTalentIndex(rawTalentString, currentTab, encodedId)
-    if mappedIndex then
-        return mappedIndex
-    end
-
-    return strfind(characterIndices, strlower(encodedId))
+    return strfind(characterIndices, strlower(encodedId)), nil
 end
 
 local function HasTalentOrder(encodedString)
@@ -126,10 +120,11 @@ function ts.WowheadTalents.GetTalents(talentString)
         if strbyte(encodedId) <= 50 then
             currentTab = tonumber(encodedId)
         else
-            local talentIndex = GetMappedTalentIndex(rawTalentString, currentTab, encodedId)
+            local talentIndex, entry = GetMappedTalentResult(rawTalentString, currentTab, encodedId)
             if not talentIndex then
                 return nil
             end
+            local ranks = entry and entry.ranks
             -- wowhead says to max out the talent if its in caps
             if strbyte(encodedId) < 97 then
                 local _, _, _, _, _, maxRank = GetTalentInfo(currentTab + 1, talentIndex)
@@ -137,21 +132,22 @@ function ts.WowheadTalents.GetTalents(talentString)
                     level = level + 1
                     tinsert(talents, {
                         tab = currentTab + 1,
-                        id = encodedId,
-                        level = level,
                         index = talentIndex,
                         rank = j,
+                        level = level,
+                        spellId = ranks and ranks[j],
                     })
                 end
             else
                 level = level + 1
                 talentCounter[encodedId] = (talentCounter[encodedId] or 0) + 1
+                local rank = talentCounter[encodedId]
                 tinsert(talents, {
                     tab = currentTab + 1,
-                    id = encodedId,
-                    level = level,
                     index = talentIndex,
-                    rank = talentCounter[encodedId],
+                    rank = rank,
+                    level = level,
+                    spellId = ranks and ranks[rank],
                 })
             end
         end
