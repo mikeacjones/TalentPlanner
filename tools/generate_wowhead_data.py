@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --project tools
 """
 Generates WowheadData Lua files from Wowhead talent calculator data.
 
