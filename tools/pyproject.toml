@@ -1,0 +1,7 @@
+[project]
+name = "talent-planner-tools"
+version = "1.0.0"
+description = "Tools for generating Talent Planner addon data"
+requires-python = ">=3.11"
+dependencies = []
+
