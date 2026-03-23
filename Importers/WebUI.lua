@@ -3,13 +3,9 @@ local _, ts = ...
 local strlen = strlen
 local strsub = strsub
 local strfind = strfind
-local strlower = strlower
-local tonumber = tonumber
 local tinsert = tinsert
 
 ts.WebUITalents = {}
-
-local URL_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ3456789"
 
 -- Minimal base64 decoder
 local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
@@ -37,20 +33,8 @@ local function DecodeBase64(input)
     return table.concat(output)
 end
 
-local CLASS_TOKENS = {
-    druid = "DRUID",
-    hunter = "HUNTER",
-    mage = "MAGE",
-    paladin = "PALADIN",
-    priest = "PRIEST",
-    rogue = "ROGUE",
-    shaman = "SHAMAN",
-    warlock = "WARLOCK",
-    warrior = "WARRIOR",
-}
-
 -- Minimal JSON parser for the web UI export format:
--- { "classToken": "PALADIN", "talents": [ {spellId}, ... ] }
+-- { "classToken": "PALADIN", "flavor": "tbc", "talents": [ {spellId}, ... ] }
 local ParseObject, ParseArray
 
 local function SkipWhitespace(str, pos)
@@ -158,10 +142,7 @@ end
 
 -- Detect whether the input is a web UI URL
 function ts.WebUITalents.IsURL(input)
-    return strfind(input, "TalentPlanner%-WebUI") ~= nil
-        or strfind(input, "talent%-planner%-webui") ~= nil
-        or strfind(input, "#classic/") ~= nil
-        or strfind(input, "#tbc/") ~= nil
+    return strfind(input, "talentplanner%.app") ~= nil
         or strfind(input, "#b/") ~= nil
 end
 
@@ -240,76 +221,18 @@ function ts.WebUITalents.ImportURL(input)
         return nil, nil, "INVALID_URL"
     end
 
-    -- New format: #b/<base64-json>
+    -- Current format: #b/<base64-json>
     local base64Data = hash:match("^b/(.+)$")
-    if base64Data then
-        local json = DecodeBase64(base64Data)
-        if not json then
-            return nil, nil, "IMPORT_FAILED"
-        end
-        return ts.WebUITalents.ImportJSON(json)
-    end
-
-    -- Legacy format: #flavor/class/encoded_order
-    local flavor, classSlug, encoded = hash:match("^([^/]+)/([^/]+)/(.+)$")
-    if not flavor or not classSlug or not encoded then
+    if not base64Data then
         return nil, nil, "INVALID_URL"
     end
 
-    flavor = strlower(flavor)
-    classSlug = strlower(classSlug)
-
-    local classToken = CLASS_TOKENS[classSlug]
-    if not classToken then
-        return nil, nil, "INVALID_URL"
+    local json = DecodeBase64(base64Data)
+    if not json then
+        return nil, nil, "IMPORT_FAILED"
     end
 
-    local meta = ts.TalentResolver.GetFlavorMeta()
-    local startingLevel = meta and meta.startingLevel or 9
-
-    -- Decode the encoded order
-    local talents = {}
-    local currentTab = 0
-    local pointsSpent = 0
-
-    for i = 1, strlen(encoded) do
-        local ch = strsub(encoded, i, i)
-        if ch == "0" or ch == "1" or ch == "2" then
-            currentTab = tonumber(ch)
-        else
-            local pos = strfind(URL_CHARS, ch, 1, true)
-            if not pos then
-                return nil, classToken, "IMPORT_FAILED"
-            end
-            local talentIndex = pos -- 1-based index within the tab
-
-            -- Determine rank by counting prior allocations to this talent
-            local rank = 0
-            for _, prev in ipairs(talents) do
-                if prev.tab == (currentTab + 1) and prev.index == talentIndex then
-                    rank = rank + 1
-                end
-            end
-            rank = rank + 1
-
-            pointsSpent = pointsSpent + 1
-            local spellId = ts.TalentResolver.GetSpellId(classToken, currentTab + 1, talentIndex, rank)
-
-            tinsert(talents, {
-                tab = currentTab + 1,
-                index = talentIndex,
-                rank = rank,
-                level = startingLevel + pointsSpent,
-                spellId = spellId,
-            })
-        end
-    end
-
-    if #talents == 0 then
-        return nil, classToken, "IMPORT_FAILED"
-    end
-
-    return talents, classToken
+    return ts.WebUITalents.ImportJSON(json)
 end
 
 -- Main entry point: detect format and import
